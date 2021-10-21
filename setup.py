@@ -10,9 +10,9 @@ def readme():
 
 
 # HACK: fetch version
-builtins.__SRCEX_SETUP__ = True
-import srcex
-version = srcex.__version__
+builtins.__SEW_SETUP__ = True
+import sew
+version = sew.__version__
 
 
 # Publish the library to PyPI.
@@ -30,15 +30,15 @@ if "tag" in sys.argv:
 
 
 setup(
-    name='srcex',
+    name='sew',
     version=version,
-    description='An easy peasy Source Extractor wrapper.',
+    description='An easy peasy Source Extractor Wrapper (SEW).',
     long_description=readme(),
     author='Johnny Greco',
     author_email='jgreco.astro@gmail.com',
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    url='https://github.com/DragonflyTelescope/SrcEx',
+    url='https://github.com/DragonflyTelescope/SEW',
     install_requires=[
         'numpy>=1.17',
         'scipy>=1',

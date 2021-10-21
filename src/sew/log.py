@@ -4,7 +4,7 @@ from astropy.logger import AstropyLogger
 from astropy.utils.console import color_print
 
 
-class SrcExLogger(AstropyLogger):
+class SEWLogger(AstropyLogger):
 
     def _set_defaults(self, level='INFO'):
         """
@@ -52,7 +52,7 @@ class StreamHandler(logging.StreamHandler):
         print(msg, file=stream)
 
 
-logging.setLoggerClass(SrcExLogger)
-logger = logging.getLogger('SrcExLogger')
+logging.setLoggerClass(SEWLogger)
+logger = logging.getLogger('SEWLogger')
 logger._set_defaults()
 
