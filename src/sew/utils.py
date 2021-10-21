@@ -2,7 +2,13 @@ import numpy as np
 from astropy.io import fits
 
 
+__all__ = ['is_list_like', 'list_of_strings', 'temp_fits_file']
+
+
 def is_list_like(check):
+    """
+    Check if an object is list-like (i.e., list, ndarray, or tuple).
+    """
     return isinstance(check, (list, np.ndarray, tuple))
 
 
@@ -35,6 +41,10 @@ def list_of_strings(str_or_list):
 
 def temp_fits_file(path_or_pixels, tmp_path='/tmp', run_label=None,
                    prefix='tmp',  header=None):
+    """
+    Save temporary fits files if necessary. If a numpy array is given as input,
+    the temporary file isn't necessary.
+    """
     is_str = type(path_or_pixels) == str or type(path_or_pixels) == np.str_
     if is_str and header is None:
         path = path_or_pixels

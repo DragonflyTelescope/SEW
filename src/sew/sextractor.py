@@ -1,10 +1,9 @@
 import os
 import numpy as np
 from subprocess import call, check_output, CalledProcessError
-from astropy.io import ascii, fits
+from astropy.io import ascii
 from .log import logger
-from . import package_dir, utils
-EXECUTABLE = os.getenv('SE_EXE')
+from . import src_dir, utils
 
 
 __all__ = [
@@ -12,34 +11,34 @@ __all__ = [
     'default_options',
     'input_file_path',
     'kernel_path',
-    'default_params',
-    'all_param_names',
-    'EXECUTABLE'
 ]
 
 # default SExtractor paths and files
-input_file_path = os.path.join(package_dir, 'io')
+input_file_path = os.path.join(src_dir, 'input')
 kernel_path = os.path.join(input_file_path, 'kernels')
 default_nnw = os.path.join(input_file_path, 'default.nnw')
 default_config = os.path.join(input_file_path, 'default.config')
 default_param_file = os.path.join(input_file_path, 'default.param')
 default_conv = os.path.join(kernel_path, 'default.conv')
 
-
-# get list of all config options
-lines = check_output(f'{EXECUTABLE} -dd', shell=True)
-lines = lines.decode('utf-8').split('\n')
-cleaned = filter(lambda l: l.strip()[0] != '#',
-          filter(lambda l: len(l) > 1, lines))
-all_option_names = [l.split()[0] for l in cleaned]
-
-
-# get list of all SExtractor measurement parameters
-lines = check_output(f'{EXECUTABLE} -dp', shell=True)
-lines = lines.decode('utf-8').split('\n')
-cleaned = filter(lambda l: len(l) > 1, lines)
-all_param_names = [l.split()[0][1:] for l in cleaned]
-default_params = np.loadtxt(default_param_file, dtype=str).tolist()
+def _setup(exe):
+    try:
+        lines = check_output(f'{exe} -dd', shell=True)
+    except CalledProcessError:
+        exe = exe.replace('tractor', '')
+        lines = check_output(f'{exe} -dd', shell=True)
+    # get list of all config options
+    lines = lines.decode('utf-8').split('\n')
+    cleaned = filter(lambda l: l.strip()[0] != '#',
+              filter(lambda l: len(l) > 1, lines))
+    option_names = [l.split()[0] for l in cleaned]
+    # get list of all SExtractor measurement parameters
+    lines = check_output(f'{exe} -dp', shell=True)
+    lines = lines.decode('utf-8').split('\n')
+    cleaned = filter(lambda l: len(l) > 1, lines)
+    param_names = [l.split()[0][1:] for l in cleaned]
+    default_params = np.loadtxt(default_param_file, dtype=str).tolist()
+    return exe, option_names, param_names, default_params
 
 
 # default non-standard options
@@ -58,7 +57,7 @@ default_options = dict(
 
 
 def run(path_or_pixels, catalog_path=None, config_path=default_config,
-        tmp_path='/tmp', run_label=None, header=None,
+        tmp_path='/tmp', run_label=None, header=None, executable='sextractor',
         extra_params=None, **sextractor_options):
     """
     Run SExtractor.
@@ -84,6 +83,8 @@ def run(path_or_pixels, catalog_path=None, config_path=default_config,
     header : astropy.io.fits.Header (optional)
         Image header if you pass image pixels to this function and want
         SExtractor to have the header information.
+    executable : str (optional)
+        SExtractor executable.
     extra_params: str or list-like (optional)
         Additional SE measurement parameters. The default parameters, which
         are always in included, are the following:
@@ -128,11 +129,13 @@ def run(path_or_pixels, catalog_path=None, config_path=default_config,
 
     logger.debug('Running SExtractor on ' + image_path)
 
+    executable, option_names, param_names, default_params = _setup(executable)
+
     # update config options
     final_options = default_options.copy()
     for k, v in sextractor_options.items():
         k = k.upper()
-        if k not in all_option_names:
+        if k not in option_names:
             msg = '{} is not a valid SExtractor option -> we will ignore it!'
             logger.warning(msg.format(k))
         else:
@@ -156,7 +159,7 @@ def run(path_or_pixels, catalog_path=None, config_path=default_config,
         for par in extra_params:
             p = par.upper()
             _p = p[:p.find('(')] if p.find('(') > 0 else p
-            if _p not in all_param_names:
+            if _p not in param_names:
                 msg = '{} is not a valid SExtractor param -> we will ignore it!'
                 logger.warning(msg.format(p))
             elif _p in default_params:
@@ -170,10 +173,10 @@ def run(path_or_pixels, catalog_path=None, config_path=default_config,
             with open(param_fn, 'w') as f:
                 logger.debug('Writing parameter file to ' + param_fn)
                 print('\n'.join(params), file=f)
-        final_options['PARAMETERS_NAME'] = param_fn
+            final_options['PARAMETERS_NAME'] = param_fn
 
     # build shell command
-    cmd = EXECUTABLE + ' -c {} {}'.format(config_path, image_path)
+    cmd = executable + ' -c {} {}'.format(config_path, image_path)
     cmd += ' -CATALOG_NAME ' + cat_name
     for k, v in final_options.items():
         cmd += ' -{} {}'.format(k.upper(), v)

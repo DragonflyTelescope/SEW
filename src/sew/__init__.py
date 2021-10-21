@@ -7,10 +7,9 @@ except NameError:
 
 if not __SEW_SETUP__:
     import os
-    project_dir = os.path.dirname(os.path.dirname(__file__))
-    package_dir = os.path.join(project_dir, 'sew')
-    package_data_dir = os.path.join(project_dir, 'data')
+    src_dir = os.path.dirname(os.path.dirname(__file__))
+    package_dir = os.path.join(src_dir, 'sew')
     from .sextractor import *
-    from .routines import *
-    from .segmentation import *
+    from . import routines
+    from . import segmentation
 

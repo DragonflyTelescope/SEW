@@ -3,14 +3,14 @@ Pre-cooked source detection routines.
 """
 from .log import logger
 from . import sextractor
-STAR_QUERY = 'FLAGS == 0 and ISOAREA_IMAGE > 10 and ISOAREA_IMAGE < 100 \
-              and FWHM_IMAGE > 1 and FWHM_IMAGE < 5'
+DEFAULT_STAR_QUERY = 'FLAGS == 0 and ISOAREA_IMAGE > 10 and ISOAREA_IMAGE < 100 \
+                      and FWHM_IMAGE > 1 and FWHM_IMAGE < 5'
 
 
 __all__ = ['extract_bright_stars']
 
 
-def extract_bright_stars(path_or_pixels, query=STAR_QUERY, **kwargs):
+def extract_bright_stars(path_or_pixels, query=DEFAULT_STAR_QUERY, **kwargs):
     logger.debug('Running SExtractor to extract bright stars.')
     cat = sextractor.run(path_or_pixels,
                          DETECT_MINAREA=kwargs.pop('DETECT_MINAREA', 5),
