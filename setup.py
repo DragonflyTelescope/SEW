@@ -1,55 +1,37 @@
-import os, sys
-import builtins
-from setuptools import setup, find_packages
-sys.path.append('src')
+from setuptools import find_packages, setup
 
+install_requires = [
+    "astropy>=5.1",
+    "numpy>=1.23.2",
+    "scipy>=1.9.1",
+]
 
-def readme():
-    with open("README.rst") as f:
-        return f.read()
+linting_deps = [
+    "black>=22.6.0",
+    "flake8>=5.0.4",
+    "mypy>=0.971",
+    "isort>=5.10.1",
+    "pre-commit>=2.20.0",
+]
 
+testing_deps = [
+    "ipykernel>=6.15.2",
+    "pytest>=7.1.2",
+]
 
-# HACK: fetch version
-builtins.__SEW_SETUP__ = True
-import sew
-version = sew.__version__
-
-
-# Publish the library to PyPI.
-if "publish" in sys.argv[-1]:
-    os.system("python setup.py sdist bdist_wheel")
-    os.system(f"python3 -m twine upload dist/*{version}*")
-    sys.exit()
-
-
-# Push a new tag to GitHub.
-if "tag" in sys.argv:
-    os.system("git tag -a v{0} -m 'version {0}'".format(version))
-    os.system("git push --tags")
-    sys.exit()
-
+extras_require = {"dev": linting_deps + testing_deps}
 
 setup(
-    name='sew',
-    version=version,
-    description='An easy peasy Source Extractor Wrapper (SEW).',
-    long_description=readme(),
-    author='Johnny Greco',
-    author_email='jgreco.astro@gmail.com',
+    name="SEW",
+    version="0.0.0",
+    author="Johnny Greco",
+    url="https://github.com/DragonflyTelescope/SEW",
+    python_requires=">=3.8",
+    description="A super simple wrapper for SExtractor.",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    url='https://github.com/DragonflyTelescope/SEW',
-    install_requires=[
-        'numpy>=1.17',
-        'scipy>=1',
-        'astropy>=4'
-     ],
-     classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Intended Audience :: Science/Research",
-        "Operating System :: OS Independent",
-        "Topic :: Scientific/Engineering :: Astronomy",
-      ],
-    python_requires='>=3.6',
+    include_package_data=True,
+    package_data={"sew": ["input/*"]},
+    install_requires=install_requires,
+    extras_require=extras_require,
 )

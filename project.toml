@@ -1,0 +1,9 @@
+[tool.black]
+line-length = 120
+
+# use black-compatible isort config
+# https://pycqa.github.io/isort/docs/configuration/black_compatibility/
+[tool.isort]
+line_length = 120
+profile = "black"
+multi_line_output = 3

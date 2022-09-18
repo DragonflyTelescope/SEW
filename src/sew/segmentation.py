@@ -1,39 +1,46 @@
 import os
+
 import numpy as np
-from scipy import ndimage
 from astropy.io import fits
+from scipy import ndimage
 
-from .log import logger
-from . import sextractor
-default_names = dict(x='X_IMAGE', y='Y_IMAGE', flux='FLUX_AUTO')
+from . import load_logger, sextractor
+
+__all__ = ["sextractor_object_mask", "sextractor_sky_model", "create_source_map"]
+
+DEFAULT_NAMES = dict(x="X_IMAGE", y="Y_IMAGE", flux="FLUX_AUTO")
+logger = load_logger()
 
 
-__all__ = ['sextractor_object_mask',
-           'sextractor_sky_model',
-           'create_source_map']
-
-
-def sextractor_object_mask(path_or_pixels, tmp_path='/tmp', run_label=None,
-                           mask_fn=None, dilate_npix=5, dtype=bool,
-                           **sextractor_options):
-    label = '' if run_label is None else '_' + run_label
+def sextractor_object_mask(
+    path_or_pixels,
+    tmp_path="/tmp",
+    run_label=None,
+    mask_fn=None,
+    dilate_npix=5,
+    dtype=bool,
+    **sextractor_options,
+):
+    label = "" if run_label is None else "_" + run_label
 
     if mask_fn is not None:
         created_tmp = False
     else:
-        mask_fn = os.path.join(tmp_path, f'obj_msk{label}.fits')
+        mask_fn = os.path.join(tmp_path, f"obj_msk{label}.fits")
         created_tmp = True
 
-    cfg = dict(CHECKIMAGE_TYPE='OBJECTS',
-               CHECKIMAGE_NAME=mask_fn,
-               tmp_path=tmp_path,
-               run_label=run_label)
+    cfg = dict(
+        CHECKIMAGE_TYPE="OBJECTS",
+        CHECKIMAGE_NAME=mask_fn,
+        tmp_path=tmp_path,
+        run_label=run_label,
+    )
     cfg.update(sextractor_options)
     sextractor.run(path_or_pixels, **cfg)
     mask = fits.getdata(mask_fn)
 
     if dilate_npix > 0:
-        logger.debug(f'Dilating object mask with dilate_npix = {dilate_npix}')
+        logger.debug(f"Dilating object mask with dilate_npix = {dilate_npix}")
         size = (dilate_npix, dilate_npix)
         mask = ndimage.morphology.grey_dilation(mask, size)
 
@@ -45,25 +52,28 @@ def sextractor_object_mask(path_or_pixels, tmp_path='/tmp', run_label=None,
     return mask
 
 
-def sextractor_sky_model(path_or_pixels, run_label=None, tmp_path='/tmp',
-                         sky_fn=None, **sextractor_options):
-    label = '' if run_label is None else '_' + run_label
+def sextractor_sky_model(
+    path_or_pixels, run_label=None, tmp_path="/tmp", sky_fn=None, **sextractor_options
+):
+    label = "" if run_label is None else "_" + run_label
 
     if sky_fn is not None:
         created_tmp = False
     else:
-        sky_fn = os.path.join(tmp_path, f'skymodel{label}.fits')
+        sky_fn = os.path.join(tmp_path, f"skymodel{label}.fits")
         created_tmp = True
 
     options = {}
     for k, v in sextractor_options.items():
         options[k.upper()] = v
 
-    cfg = dict(CHECKIMAGE_TYPE='BACKGROUND',
-               CHECKIMAGE_NAME=sky_fn,
-               tmp_path=tmp_path,
-               run_label=run_label)
-    cfg['DETECT_THRESH'] = options.pop('DETECT_THRESH', 2)
+    cfg = dict(
+        CHECKIMAGE_TYPE="BACKGROUND",
+        CHECKIMAGE_NAME=sky_fn,
+        tmp_path=tmp_path,
+        run_label=run_label,
+    )
+    cfg["DETECT_THRESH"] = options.pop("DETECT_THRESH", 2)
     cfg.update(options)
 
     sextractor.run(path_or_pixels, **cfg)
@@ -75,8 +85,7 @@ def sextractor_sky_model(path_or_pixels, run_label=None, tmp_path='/tmp',
     return sky
 
 
-def create_source_map(catalog, image_shape, max_num_sources=1e5,
-                      names=default_names):
+def create_source_map(catalog, image_shape, max_num_sources=1e5, names=DEFAULT_NAMES):
     """
     Make source map image based on the input catalog with ones where there
     are detected sources and zeros everywhere else.
@@ -105,9 +114,9 @@ def create_source_map(catalog, image_shape, max_num_sources=1e5,
     """
     max_num_sources = int(max_num_sources)
     source_map = np.zeros(image_shape)
-    flux = catalog[names['flux']]
+    flux = catalog[names["flux"]]
     flux_sort = np.argsort(-flux)
-    x = np.array(catalog[names['x']].astype(int))[flux_sort] - 1
-    y = np.array(catalog[names['y']].astype(int))[flux_sort] - 1
+    x = np.array(catalog[names["x"]].astype(int))[flux_sort] - 1
+    y = np.array(catalog[names["y"]].astype(int))[flux_sort] - 1
     source_map[y[:max_num_sources], x[:max_num_sources]] = 1
     return source_map
