@@ -4,53 +4,22 @@ from typing import Optional, Tuple, Union
 import numpy as np
 from astropy.io import fits
 
-from . import errors, load_logger
+from . import errors
+from .log import load_logger
 
 __all__ = [
+    "create_temp_fits_file_if_necessary",
     "is_list_like",
     "list_of_strings",
-    "create_temp_fits_file_if_necessary",
+    "ListLike",
     "PathLike",
     "PathOrPixels",
 ]
 
 logger = load_logger()
+ListLike = Union[list, tuple, np.ndarray]
 PathLike = Union[Path, str, np.str_]
 PathOrPixels = Union[PathLike, np.ndarray]
-
-
-def is_list_like(check):
-    """
-    Check if an object is list-like (i.e., list, ndarray, or tuple).
-    """
-    return isinstance(check, (list, np.ndarray, tuple))
-
-
-def list_of_strings(str_or_list):
-    """
-    Return a list of strings from a single string of comma-separated values.
-
-    Parameters
-    ----------
-    str_or_list : str or list-like
-        Single string of comma-separated values or a list of strings. If it's
-        the latter, then the inputs list is simply returned.
-
-    Examples
-    --------
-
-            INPUT                                 OUTPUT
-    'flag_1,flag_2,flag_3'         --> ['flag_1', 'flag_2', 'flag_3']
-    'flag_1, flag_2, flag_3'       --> ['flag_1', 'flag_2', 'flag_3']
-    ['flag_1', 'flag_2', 'flag_3'] --> ['flag_1', 'flag_2', 'flag_3']
-    """
-    if is_list_like(str_or_list):
-        ls_str = str_or_list
-    elif type(str_or_list) == str:
-        ls_str = str_or_list.replace(" ", "").split(",")
-    else:
-        Exception("{} is not correct type for list of str".format(str_or_list))
-    return ls_str
 
 
 def create_temp_fits_file_if_necessary(
@@ -93,3 +62,37 @@ def create_temp_fits_file_if_necessary(
         logger.debug(f"Writing temporary fits file {fits_file_path}")
         fits.writeto(fits_file_path, pixels, header=header, overwrite=True)
     return fits_file_path, created_temp_file
+
+
+def is_list_like(check):
+    """
+    Check if an object is list-like (i.e., list, ndarray, or tuple).
+    """
+    return isinstance(check, (list, np.ndarray, tuple))
+
+
+def list_of_strings(str_or_list):
+    """
+    Return a list of strings from a single string of comma-separated values.
+
+    Parameters
+    ----------
+    str_or_list : str or list-like
+        Single string of comma-separated values or a list of strings. If it's
+        the latter, then the inputs list is simply returned.
+
+    Examples
+    --------
+
+            INPUT                                 OUTPUT
+    'flag_1,flag_2,flag_3'         --> ['flag_1', 'flag_2', 'flag_3']
+    'flag_1, flag_2, flag_3'       --> ['flag_1', 'flag_2', 'flag_3']
+    ['flag_1', 'flag_2', 'flag_3'] --> ['flag_1', 'flag_2', 'flag_3']
+    """
+    if is_list_like(str_or_list):
+        ls_str = str_or_list
+    elif type(str_or_list) == str:
+        ls_str = str_or_list.replace(" ", "").split(",")
+    else:
+        Exception("{} is not correct type for list of str".format(str_or_list))
+    return ls_str

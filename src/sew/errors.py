@@ -8,4 +8,3 @@ class InvalidPathOrPixels(SEWError):
 
 class SourceExtractorExecutableError(SEWError):
     """Throw this exception when there is an error finding/running SExtractor."""
-    

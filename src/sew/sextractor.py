@@ -7,7 +7,9 @@ import numpy as np
 from astropy.io import ascii, fits
 from astropy.table import Table
 
-from . import PACKAGE_PATH, SE_EXECUTABLE, errors, load_logger, utils
+from . import errors, utils
+from .constants import PACKAGE_PATH, SE_EXECUTABLE
+from .log import load_logger
 from .utils import PathLike, PathOrPixels
 
 __all__ = [

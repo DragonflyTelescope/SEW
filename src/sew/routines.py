@@ -1,7 +1,8 @@
 """Pre-cooked source detection routines."""
 from astropy.table import Table
 
-from . import load_logger, sextractor
+from . import sextractor
+from .log import load_logger
 
 logger = load_logger()
 
