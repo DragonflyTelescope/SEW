@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  SE_EXECUTABLE: sextractor
+  SE_EXECUTABLE: source-extractor
 
 jobs:
   run-unit-tests:
