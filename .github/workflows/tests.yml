@@ -23,7 +23,9 @@ jobs:
         run: |
           sudo apt-get install sextractor
           pip install -e ".[dev]"
-      - name: run unit tests
+      - name: unit tests
         run: pytest -v .
-      - name: run type checking
+      - name: type checking
         run: mypy src/sew --ignore-missing-imports
+      - name: linting
+        run: flake8 src/sew
