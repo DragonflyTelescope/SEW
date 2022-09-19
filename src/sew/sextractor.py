@@ -15,6 +15,8 @@ from .utils import PathLike, PathOrPixels
 __all__ = [
     "run",
     "DEFAULT_OPTIONS",
+    "OPTION_NAMES",
+    "PARAM_NAMES",
     "SE_INPUT_FILE_PATH",
     "KERNEL_PATH",
 ]
