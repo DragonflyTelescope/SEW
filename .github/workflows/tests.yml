@@ -21,7 +21,7 @@ jobs:
           python-version: "3.8"
       - name: Install Packages
         run: | 
-          sudo apt-get sextractor
+          sudo apt-get install sextractor
           pip install -e ".[dev]"
       - name: Run Unit Tests
         run: pytest -v .
