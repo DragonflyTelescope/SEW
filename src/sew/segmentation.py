@@ -9,7 +9,7 @@ from scipy import ndimage
 
 from . import sextractor
 from .log import load_logger
-from .utils import ListLike, make_keys_uppercase, PathLike, PathOrPixels
+from .utils import ListLike, PathLike, PathOrPixels, make_keys_uppercase
 
 __all__ = [
     "create_sextractor_object_mask",
