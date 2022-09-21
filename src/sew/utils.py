@@ -12,6 +12,7 @@ __all__ = [
     "is_list_like",
     "list_of_strings",
     "ListLike",
+    "make_keys_uppercase",
     "PathLike",
     "PathOrPixels",
 ]
@@ -31,7 +32,7 @@ def create_temp_fits_file_if_necessary(
     """_summary_
 
     Args:
-        path_or_pixels: _description_
+        path_or_pixels: Path to fits file or its pixels in a numpy array.
         tmp_path: _description_. Defaults to "/tmp".
         run_label: _description_. Defaults to None.
         header: _description_. Defaults to None.
@@ -65,9 +66,7 @@ def create_temp_fits_file_if_necessary(
 
 
 def is_list_like(check):
-    """
-    Check if an object is list-like (i.e., list, ndarray, or tuple).
-    """
+    """Check if an object is list-like (i.e., list, ndarray, or tuple)."""
     return isinstance(check, (list, np.ndarray, tuple))
 
 
@@ -96,3 +95,10 @@ def list_of_strings(str_or_list):
     else:
         Exception("{} is not correct type for list of str".format(str_or_list))
     return ls_str
+
+
+def make_keys_uppercase(dictionary: dict) -> dict:
+    d = {}
+    for k, v in dictionary.items():
+        d[k.upper()] = v
+    return d

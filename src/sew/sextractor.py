@@ -73,11 +73,11 @@ def run(
     """Run Source Extractor.
 
     Args:
-        path_or_pixels: _description_
+        path_or_pixels: Path to fits file or its pixels in a numpy array.
         catalog_path: _description_. Defaults to None.
         config_path: _description_. Defaults to None.
-        tmp_path: _description_. Defaults to "/tmp".
-        run_label: _description_. Defaults to None.
+        tmp_path: Temporary path for files created by SExtractor. Defaults to "/tmp".
+        run_label: Unique file label for this function call (useful when running in parallel).
         header: _description_. Defaults to None.
         extra_params: _description_. Defaults to None.
         **sextractor_options: Any SExtractor configuration option passed as a keyword.
