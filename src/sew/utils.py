@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 from astropy.io import fits
@@ -25,23 +25,27 @@ PathOrPixels = Union[PathLike, np.ndarray]
 
 def create_temp_fits_file_if_necessary(
     path_or_pixels: PathOrPixels,
-    tmp_path: PathLike = "/tmp",
-    run_label: Optional[str] = None,
     header: Optional[fits.Header] = None,
+    run_label: Optional[str] = None,
+    tmp_path: PathLike = "/tmp",
 ) -> Tuple[Path, bool]:
-    """_summary_
+    """Helper function for optionally writing fits files for input to SExtractor.
+
+    Note:
+        This purpose of this function is to enable the user to pass either a
+        path or pixels to the sextractor.run function. If pixels are given,
+        a temporary file is created (as required for SExtractor input). If a
+        Path is given, it is simply returned and no temporary file is created.
 
     Args:
         path_or_pixels: Path to fits file or its pixels in a numpy array.
-        tmp_path: _description_. Defaults to "/tmp".
-        run_label: _description_. Defaults to None.
-        header: _description_. Defaults to None.
-
-    Raises:
-        errors.InvalidPathOrPixels: _description_
+        header: Astropy fits header object. If not None, this header will take precedent.
+        run_label: Unique file label for this function call (useful when running in parallel).
+        tmp_path: Temporary path for files created by SExtractor. Defaults to "/tmp".
 
     Returns:
-        _description_
+        Path object pointing to the fits file that contains the pixels and a boolean
+        that is True if a temporary file was created.
     """
     is_path = isinstance(path_or_pixels, (Path, str, np.str_))
     if is_path and header is None:
@@ -65,39 +69,47 @@ def create_temp_fits_file_if_necessary(
     return fits_file_path, created_temp_file
 
 
-def is_list_like(check):
-    """Check if an object is list-like (i.e., list, ndarray, or tuple)."""
+def is_list_like(check: Any) -> bool:
+    """Return True if an object is list-like (i.e., list, ndarray, or tuple)."""
     return isinstance(check, (list, np.ndarray, tuple))
 
 
-def list_of_strings(str_or_list):
-    """
-    Return a list of strings from a single string of comma-separated values.
+def list_of_strings(str_or_list: Union[str, List[str]]) -> List[str]:
+    """Return a list of strings when given a variety of inputs.
 
-    Parameters
-    ----------
-    str_or_list : str or list-like
-        Single string of comma-separated values or a list of strings. If it's
-        the latter, then the inputs list is simply returned.
+    Args:
+        str_or_list: Single string of comma-separated values or a list of strings.
+            If it's the latter, then the input list is simply returned.
 
-    Examples
-    --------
+    Returns:
+        A list of strings, where each element represents a single piece of
+        information (e.g., a parameter or flag name)
 
-            INPUT                                 OUTPUT
-    'flag_1,flag_2,flag_3'         --> ['flag_1', 'flag_2', 'flag_3']
-    'flag_1, flag_2, flag_3'       --> ['flag_1', 'flag_2', 'flag_3']
-    ['flag_1', 'flag_2', 'flag_3'] --> ['flag_1', 'flag_2', 'flag_3']
+    Examples:
+                INPUT                                 OUTPUT
+        'flag_1,flag_2,flag_3'         --> ['flag_1', 'flag_2', 'flag_3']
+        'flag_1, flag_2, flag_3'       --> ['flag_1', 'flag_2', 'flag_3']
+        ['flag_1', 'flag_2', 'flag_3'] --> ['flag_1', 'flag_2', 'flag_3']
     """
     if is_list_like(str_or_list):
-        ls_str = str_or_list
-    elif type(str_or_list) == str:
+        ls_str = list(str_or_list)
+    elif isinstance(str_or_list, str):
         ls_str = str_or_list.replace(" ", "").split(",")
     else:
-        Exception("{} is not correct type for list of str".format(str_or_list))
+        Exception(f"{str_or_list} is not correct type for list of str")
     return ls_str
 
 
 def make_keys_uppercase(dictionary: dict) -> dict:
+    """Make all key names in dictionary uppercase.
+
+    Args:
+        dictionary: Make keys of this dict uppercase.
+
+    Returns:
+        A new dictionary (i.e., the input dictionary is not modified) with
+        all uppercase keys.
+    """
     d = {}
     for k, v in dictionary.items():
         d[k.upper()] = v

@@ -52,7 +52,7 @@ cleaned = filter(lambda line: len(line) > 1, lines)
 PARAM_NAMES = [line.split()[0][1:] for line in cleaned]
 DEFAULT_PARAMS = np.loadtxt(DEFAULT_PARAM_FILE, dtype=str).tolist()
 
-# default non-standard options
+# default config options
 DEFAULT_OPTIONS = dict(
     VERBOSE_TYPE="QUIET",
     PARAMETERS_NAME=DEFAULT_PARAM_FILE,
@@ -62,31 +62,17 @@ DEFAULT_OPTIONS = dict(
 
 def run(
     path_or_pixels: PathOrPixels,
-    config_path: Optional[PathLike] = DEFAULT_CONFIG_PATH,
-    catalog_path: Optional[PathLike] = None,
-    tmp_path: PathLike = "/tmp",
-    run_label: Optional[str] = None,
     header: Optional[fits.Header] = None,
+    run_label: Optional[str] = None,
     extra_params: Optional[Union[str, List[str]]] = None,
+    config_file_path: Optional[PathLike] = DEFAULT_CONFIG_PATH,
+    catalog_file_path: Optional[PathLike] = None,
+    tmp_path: PathLike = "/tmp",
     **sextractor_options,
 ) -> Table:
     """Run Source Extractor.
 
-    Args:
-        path_or_pixels: Path to fits file or its pixels in a numpy array.
-        catalog_path: _description_. Defaults to None.
-        config_path: _description_. Defaults to None.
-        tmp_path: Temporary path for files created by SExtractor. Defaults to "/tmp".
-        run_label: Unique file label for this function call (useful when running in parallel).
-        header: _description_. Defaults to None.
-        extra_params: _description_. Defaults to None.
-        **sextractor_options: Any SExtractor configuration option passed as a keyword.
-
-    Returns:
-        _description_
-
-
-    Notes:
+    Note:
         You must have SExtractor installed to run this function.
 
         Default measured parameters (add extra parameters using the extra_params argument):
@@ -100,6 +86,19 @@ def run(
             THETA_IMAGE
             ISOAREA_IMAGE
             FLAGS
+
+    Args:
+        path_or_pixels: Path to fits file or its pixels in a numpy array.
+        header: Astropy fits header object. If not None, this header will take precedent.
+        run_label: Unique file label for this function call (useful when running in parallel).
+        extra_params: Extra measurement parameters to include beyond the list in the note above.
+        catalog_file_path: Custom file name + location for the output SExtractor catalog.
+        config_file_path: Custom SExtractor config file.
+        tmp_path: Temporary path for files created by SExtractor. Defaults to "/tmp".
+        **sextractor_options: Any SExtractor configuration option passed as a keyword.
+
+    Returns:
+        The SExtractor catalog in an Astropy table object.
 
     Example:
         # run like this
@@ -140,12 +139,12 @@ def run(
             final_options[k] = v
 
     # create catalog path if necessary
-    if catalog_path is not None:
-        cat_name = catalog_path
+    if catalog_file_path is not None:
+        cat_name = catalog_file_path
         save_cat = True
     else:
         label = "" if run_label is None else "_" + run_label
-        cat_name = Path(tmp_path) / "se{}.cat".format(label)
+        cat_name = Path(tmp_path) / f"se{label}.cat"
         save_cat = False
 
     # create and write param file if extra params were given
@@ -166,14 +165,14 @@ def run(
                 params.append(p)
         if len(params) > len(DEFAULT_PARAMS):
             label = "" if run_label is None else "_" + run_label
-            param_file_name = Path(tmp_path) / "params{label}.se"
+            param_file_name = Path(tmp_path) / f"params{label}.se"
             with open(param_file_name, "w") as f:
                 logger.debug(f"writing parameter file to {param_file_name}")
                 f.write("\n".join(params))
             final_options["PARAMETERS_NAME"] = param_file_name
 
     # build shell command
-    cmd = f"{SE_EXECUTABLE} -c {config_path} {image_path} -CATALOG_NAME {cat_name}"
+    cmd = f"{SE_EXECUTABLE} -c {config_file_path} {image_path} -CATALOG_NAME {cat_name}"
     for k, v in final_options.items():
         cmd += f" -{k.upper()} {v}"
     if param_file_name is not None:
