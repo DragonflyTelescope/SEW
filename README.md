@@ -19,7 +19,7 @@ image = function_that_returns_image_as_numpy_array()
 catalog = sew.run(image)
 ```
 
-The returned catalog is an astropy `Table` object
+The Source Extractor catalog is returned as an astropy `Table` object.
 
 If instead you have a fits file path, the function call looks identical:
 
@@ -33,7 +33,7 @@ You can specify any Source Extractor configuration parameter as a keyword in the
 catalog = sew.run(path_to_fits_file, DETECT_THRESH=3, MAG_ZEROPOINT=27)
 ```
 
-By default, a small number of parameters are returned in the catalog:
+By default, a small number of measurement parameters are returned in the catalog:
 
 ```
     X_IMAGE
@@ -112,7 +112,7 @@ for development (e.g., `black` and `pytest`).
 Now comes the fun part – installing [Source Extractor](https://sextractor.readthedocs.io/en/latest/Installing.html)!
 
 Assuming you have Source Extractor installed, you must create an environment variable called `SE_EXECUTABLE` that points
-to its executable file.
+to the SExtractor executable.
 
 For example, if you are running `bash` and the executable `sextractor` is in your path, you can append your
 `.bashrc` file like this:
@@ -120,6 +120,8 @@ For example, if you are running `bash` and the executable `sextractor` is in you
 ```shell
 echo 'export SE_EXECUTABLE="sextractor"' >> ~/.bashrc
 ```
+
+Be sure to either open a new terminal or source your `.bashrc` file to save the environment variable.
 
 ### 🚀 Let's Go!
 
