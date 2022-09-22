@@ -4,12 +4,12 @@
 
 # Overview
 
-`SEW` provides a simple user interface for running SExtractor from python.
+`SEW` provides a simple user interface for running Source Extractor from python.
 
 # Basic Usage
 
-`SEW` allows you to seamlessly work with both `numpy` arrays and fits files, which are
-the required input form for SExtractor.
+`SEW` seamlessly works with both `numpy` arrays and fits files, which is
+Source Extractor's required input format.
 
 ```python
 import sew
@@ -27,13 +27,13 @@ If instead you have a fits file path, the function call looks identical:
 catalog = sew.run(path_to_fits_file)
 ```
 
-The `run` function can take any SExtractor configuration parameter as a keyword:
+You can specify any Source Extractor configuration parameter as a keyword in the `run` function:
 
 ```python
 catalog = sew.run(path_to_fits_file, DETECT_THRESH=3, MAG_ZEROPOINT=27)
 ```
 
-By default, a small number of parameters returned in the catalog:
+By default, a small number of parameters are returned in the catalog:
 
 ```
     X_IMAGE
@@ -56,7 +56,7 @@ catalog = sew.run(path_to_fits_file, extra_params=["ISO0", "ISO1", "ISO2"])
 
 # Installation
 
-### 🐍 Create an environment
+### 🐍 Create an environment (Optional)
 
 If you don't have one already, create a python environment for `SEW`. Here, we'll use `conda` to create
 a new development environment:
@@ -120,3 +120,7 @@ For example, if you are running `bash` and the executable `sextractor` is in you
 ```shell
 echo 'export SE_EXECUTABLE="sextractor"' >> ~/.bashrc
 ```
+
+### 🚀 Let's Go!
+
+If all the above steps worked without any errors, you should be ready to SEW it up 🪡!
