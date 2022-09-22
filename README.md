@@ -54,6 +54,16 @@ To add additional measurement parameters, use the `extra_params` keyword:
 catalog = sew.run(path_to_fits_file, extra_params=["ISO0", "ISO1", "ISO2"])
 ```
 
+`SEW` also offers helper functions for doing common tasks. For example, to
+generate a sky model:
+
+```python
+sky_model = sew.segmentation.create_sextractor_sky_model(path_to_fits_file)
+```
+
+The returned sky model is a `numpy` array. Similar to the `run` function, you can pass configuration
+parameters and/or extra measurement parameters as keywords.
+
 # Installation
 
 ### 🐍 Create an environment (Optional)
