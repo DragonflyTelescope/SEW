@@ -8,7 +8,7 @@
 
 # Basic Usage
 
-`SEW` seamlessly works with both `numpy` arrays and fits files, which is
+`SEW` *seam*lessly (😉) works with both `numpy` arrays and fits files, which is
 Source Extractor's required input format.
 
 ```python
